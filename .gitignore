@@ -1,0 +1,6 @@
+# Machine-local Claude Code settings (personal permissions, etc.)
+settings.local.json
+
+# Symlinks created by the cc-skills-golang@samber plugin install
+# (the plugin is enabled via settings.json; each machine installs it locally)
+skills/golang-*
