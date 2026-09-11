@@ -41,3 +41,20 @@ This project is indexed by GitNexus as **go-backend** (12852 symbols, 44714 rela
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+# Documentation Style
+
+Applies to any documentation Claude writes: README files, docs/, ADRs, PR descriptions, code comments longer than a line.
+
+## Always Do
+
+- Keep it short. Say it once, in simple words. Prefer bullet points over paragraphs.
+- Use the STAR method (Situation, Task, Action, Result) when describing a change, fix, or decision.
+- Use a Mermaid diagram (or similar) when a flow, sequence, or structure is easier to see than to read.
+- Use numbered steps with a concrete example when a procedure is easier to show than to explain.
+
+## Never Do
+
+- NEVER pad documentation with restated context, filler, or obvious detail.
+- NEVER write a paragraph when a bullet list or table says the same thing.
+- NEVER write documentation that a reader has to scroll through to find the one line they need.
