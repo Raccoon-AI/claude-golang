@@ -58,3 +58,25 @@ Applies to any documentation Claude writes: README files, docs/, ADRs, PR descri
 - NEVER pad documentation with restated context, filler, or obvious detail.
 - NEVER write a paragraph when a bullet list or table says the same thing.
 - NEVER write documentation that a reader has to scroll through to find the one line they need.
+
+
+# Before Coding
+
+- **(MUST)** Ask clarifying questions for ambiguous requirements.
+- **(MUST)** Draft and confirm an approach (API shape, data flow, failure modes) before writing code.
+- **(SHOULD)** When >2 approaches exist, list pros/cons and rationale.
+- **(SHOULD)** Define testing strategy (unit/integration) and observability signals up front.
+
+# Workflow
+
+- **(SHOULD)** Try to make minimal changes - do not refactor unrelated code.
+- **(NEVER)** Modify files outside the scope of the current task without asking.
+- **(SHOULD)** Avoid adding large comments into self explanatory functions and code.
+- **(MUST)** Be precise and simple when adding comments. Don't over-explain. Must be simple!
+
+# Logging & Observability
+
+- **(MUST)** Structured logging (`sirupsen/logrus`) with levels and consistent fields.
+- **(SHOULD)** Correlate logs/metrics/traces via request IDs from context.
+- **(SHOULD)** Add info logs to capture logic when tracing issues on production.
+
