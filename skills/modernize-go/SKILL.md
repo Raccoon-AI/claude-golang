@@ -1,16 +1,16 @@
 ---
 name: modernize-go
-description: "Use when the user wants to modernize Go code with `go fix` — apply idiomatic Go 1.26 rewrites (any, min/max, new(expr), slices/maps helpers, range-over-int, strings.Cut, wg.Go, t.Context, etc.), or asks to run go fix / clean up outdated patterns. Examples: \"modernize this code\", \"run go fix\", \"replace interface{} with any\", \"simplify these loops\"."
+description: "Use when the user wants to modernize Go code with `go fix` — apply idiomatic Go 1.27 rewrites (any, min/max, new(expr), slices/maps helpers, range-over-int, strings.Cut, wg.Go, t.Context, etc.), or asks to run go fix / clean up outdated patterns. Examples: \"modernize this code\", \"run go fix\", \"replace interface{} with any\", \"simplify these loops\"."
 ---
 
 # Modernize Go Code with `go fix`
 
-Go 1.26's `go fix` applies safe, idiomatic rewrites across a package — the
+Go 1.27's `go fix` applies safe, idiomatic rewrites across a package — the
 "opportunity for improvement" class of analyzers. Each fix carries a
 suggested edit that is safe to apply automatically. This is the preferred way
 to modernize; prefer it over hand-editing patterns one by one.
 
-This project is on Go 1.26 (`go.mod`), so all fixers below are available.
+This project is on Go 1.27 (`go.mod`), so all fixers below are available.
 
 ## Commands
 
@@ -53,7 +53,7 @@ go fix -stringsbuilder=false ./...
    still verify nothing broke.
 4. Commit the modernization on its own so the diff is easy to review.
 
-## Available fixers (Go 1.26)
+## Available fixers (Go 1.27)
 
 Run `go tool fix help` for the authoritative list and `go tool fix help NAME`
 for one fixer's details. As of this toolchain:
@@ -72,14 +72,20 @@ for one fixer's details. As of this toolchain:
 | `stringscut` | `strings.Index` patterns → `strings.Cut` |
 | `stringscutprefix` | `HasPrefix`/`TrimPrefix` → `CutPrefix` |
 | `stringsseq` | ranging over `Split`/`Fields` → `SplitSeq`/`FieldsSeq` |
-| `waitgroup` | `wg.Add(1)`/`go`/`wg.Done()` → `wg.Go` |
+| `waitgroupgo` | `wg.Add(1)`/`go`/`wg.Done()` → `wg.Go` |
 | `testingcontext` | `context.WithCancel` in tests → `t.Context` |
 | `reflecttypefor` | `reflect.TypeOf(x)` → `reflect.TypeFor[T]()` |
 | `omitzero` | suggest `omitzero` over `omitempty` for struct fields |
 | `forvar` | remove redundant loop-variable re-declaration |
 | `inline` | apply `//go:fix inline` directive rewrites |
+| `errorsastype` | `errors.As` + target var → `errors.AsType[T]` (1.27) |
+| `stditerators` | `Len()`/`At(i)` loops → iterator methods (1.27) |
+| `slicesbackward` | backward index loops → `slices.Backward` |
+| `embedlit` | simplify embedded-field references in composite literals |
+| `atomictypes` | basic types in `sync/atomic` calls → atomic types |
+| `unsafefuncs` | unsafe pointer arithmetic → function calls |
 
-(`buildtag`, `plusbuild`, `hostport`, `stditerators` are also registered.)
+(`buildtag`, `plusbuild`, `hostport` are also registered.)
 
 ## Prerequisite: `./...` and the skill example files
 
@@ -103,7 +109,7 @@ those scoped paths over `./...` regardless.
 ## Notes
 
 - `go fix` (the modernizer set) is distinct from `gofmt -r` and from the old
-  API-migration `cmd/fix`. Here it means the Go 1.26 analyzer-driven fixers.
+  API-migration `cmd/fix`. Here it means the Go 1.27 analyzer-driven fixers.
 - `omitzero` is a *suggestion*, not always a safe swap — `omitempty` and
   `omitzero` differ for zero-but-present values. Review those diffs manually.
 - The related vendored guidance skill is `golang-modernize` (patterns and
