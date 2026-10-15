@@ -80,3 +80,17 @@ Applies to any documentation Claude writes: README files, docs/, ADRs, PR descri
 - **(MUST)** Structured logging (`sirupsen/logrus`) with levels and consistent fields.
 - **(SHOULD)** Correlate logs/metrics/traces via request IDs from context.
 - **(SHOULD)** Add info logs to capture logic when tracing issues on production.
+
+# PR Review Replies
+
+Review bots get earlier threads as a digest: the finding's title plus the **first line** of the latest answer. Write that line so it stands alone.
+
+- **(MUST)** First line = status label + one complete sentence with the reason. Details go below a blank line.
+  - `**Fixed** in <sha> — <what changed>.`
+  - `**Won't fix** — <why the current code is right for us>.`
+  - `**Deferred** to <ticket or PR> — <why not here>.`
+  - `**Not an issue** — <why the finding is wrong>.`
+- **(NEVER)** "Same as above" / "see earlier thread": the digest shows only this thread, so restate the answer.
+- **(MUST)** Reply first, then resolve the thread.
+
+Example: `**Won't fix** — the lock is global on purpose: a container group can be linked to groups of several orgs, so a per-org key would allow two jobs for one window.`
