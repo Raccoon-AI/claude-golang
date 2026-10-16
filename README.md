@@ -8,6 +8,7 @@ Shared Claude Code configuration for Raccoon AI Go backends. Mounted as the `.cl
 - `settings.json` — enables the `cc-skills-golang@samber` plugin (Go best-practice skills)
 - `skills/gitnexus/` — GitNexus code-intelligence skills (exploring, impact analysis, debugging, refactoring, PR review)
 - `skills/modernize-go/` — apply idiomatic Go rewrites via `go fix`
+- `skills/pr-description/` — rewrite PR descriptions into a short summary plus a file-by-file review order
 - `skills/regenerate-easyjson/` — regenerate easyjson marshalers for DB models
 - `skills/regenerate-proto/` — regenerate protobuf / Connect-Go code
 
