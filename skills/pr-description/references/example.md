@@ -1,4 +1,4 @@
-# Example: go-backend #483 (layer 3 of a 5-PR stack, 4.1k lines)
+# Example: https://github.com/Raccoon-AI/go-backend/pull/483 (layer 3 of a 5-PR stack, 4.1k lines)
 
 Written from the file list below and the commit messages. Half the diff was tests, a third of the rest was copy; the review order says so and sends the reader to the schema and dispatcher first.
 

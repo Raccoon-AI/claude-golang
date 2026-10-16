@@ -1,44 +1,51 @@
 ---
 name: pr-description
-description: "Use when asked to write or rewrite a pull request description so it is short and easy to review, for one or more PR numbers. Examples: \"rewrite the description of #483\", \"write review guidance for PRs 483 484 491\", \"make this PR easier to review\", \"describe this stack for reviewers\""
+description: "Use when given one or more pull request links or numbers and asked to write, rewrite or improve the description, or to make the PR easier to review. Works across repos in one call. Examples: \"/pr-description https://github.com/org/repo/pull/483\", \"rewrite the descriptions of these PRs\", \"make this stack reviewable\""
 ---
 
 # PR Description for Reviewers
 
-Rewrites a PR body into four parts: what it does, behaviour to know, how to
-review (file order), tests. Takes one or more PR numbers. A worked example is
-in `references/example.md`.
+Rewrites each PR body into: what it does, behaviour to know, a file-by-file
+review order, tests. Input is PR links (any repos) or bare numbers (current
+repo). Nothing else needs to be said: everything below is derived from the PR.
+A worked example is in `references/example.md`.
 
-## Inputs
+## 1. Resolve each PR
 
-- PR numbers, e.g. `483 484 491`.
-- Optional `-R owner/repo` when the PR is not in the current repo.
-
-## Steps
-
-1. Gather, per PR:
+- A link `https://github.com/O/R/pull/N` gives `-R O/R` and `N`. A bare
+  number means the current repo. Process in the order given, but for PRs of
+  one stack go bottom to top (the one whose base is the default branch first).
+- Pull the facts:
 
 ```sh
-gh pr view N --json title,body,baseRefName,headRefName,url
-git fetch origin
-git log --oneline origin/<base>..origin/<head>
-git diff --numstat origin/<base>..origin/<head> | awk '{printf "%5d %s\n",$1+$2,$3}' | sort -rn
-git diff --numstat origin/<base>..origin/<head> \
-  | awk '$3 ~ /_test\.go$/ {t+=$1+$2} $3 !~ /_test\.go$/ {c+=$1+$2} END {print "tests", t, "non-test", c}'
+gh pr view N -R O/R --json title,body,url,baseRefName,headRefName,headRefOid,commits,files
 ```
 
-2. Read the commit messages and the biggest non-test files until you can say
-   what the PR does and which files carry the logic. The old body is a hint,
-   not a source: verify against the diff.
-3. Write the body with the template below into a scratch file. Keep any line
-   the author wrote at the top of the old body.
-4. `gh pr edit N --body-file <file>`. Never change the title unless asked.
-5. For a stack, do the PRs bottom to top so each body can name its base.
+  `commits[].messageHeadline` gives the story. `files[]` gives
+  `path`, `additions`, `deletions`: sort by size, and split test files
+  (`_test.go`, `*.test.*`, `__tests__/`) from the rest for the line counts.
+- Stack context, derived, never asked: if `baseRefName` is not the default
+  branch, `gh pr list -R O/R --head <baseRefName> --json number` names the
+  base PR. Count layers by following bases down to the default branch and
+  heads up with `gh pr list --base <headRefName>`. A ticket id is the
+  `[A-Z]+-\d+` in the branch name, if any.
+- Read code before writing. Prefer a local checkout of the repo when one is
+  the current directory or a sibling; otherwise read through the API:
 
-## Template
+```sh
+gh api repos/O/R/contents/<path>?ref=<headRefOid> --jq .content | base64 -d
+```
+
+  Read the largest non-test files and any file the commits name until you can
+  say what the PR does and which files hold the logic. The old body is a hint
+  to verify against the diff, not a source.
+
+## 2. Write the body
+
+Use this shape. Drop a section that has nothing to say.
 
 ```markdown
-<author's own opening line, if any>
+<the author's own opening line from the old body, if there is one>
 
 Layer X of Y (TICKET). Base: #NNN or `main`. <No migration. | Proto: ...>
 
@@ -54,7 +61,7 @@ Layer X of Y (TICKET). Base: #NNN or `main`. <No migration. | Proto: ...>
 **How to review** (about N non-test lines, M of tests)
 1. Schema first: migrations, models.
 2. Core logic in call order: the file that starts the flow, then what it calls.
-3. Wiring and config: service constructors, platform start/stop, flags.
+3. Wiring and config: constructors, start/stop, flags.
 4. Data and copy: label maps, templates. Mark as "skim".
 5. Tests last: name the one or two that prove the flow end to end.
 
@@ -69,11 +76,20 @@ Layer X of Y (TICKET). Base: #NNN or `main`. <No migration. | Proto: ...>
 <tool footer from the old body, if any, e.g. gh-stack>
 ```
 
+## 3. Apply
+
+```sh
+gh pr edit N -R O/R --body-file <scratch file>
+```
+
+Never change the title. Report one line per PR: link and the new line counts.
+
 ## Rules
 
 - Bullets, one idea each, about 20 words. No paragraphs.
-- Name files by path under `internal/` (or the repo's source root) so a
+- Name files by path from the source root (for Go, under `internal/`) so a
   reviewer can search for them. Group small helpers into one step.
-- Line counts come from `--numstat`, split test vs non-test.
+- Line counts come from the PR's file list, split test vs non-test.
 - Never cite private planning files or chat; the body must stand on its own.
 - Keep the attribution line last, before any tool footer.
+- Skip a PR that is merged or closed and say so.
